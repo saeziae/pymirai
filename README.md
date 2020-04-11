@@ -15,9 +15,9 @@ from pymirai import BOT
 
 class info:
     host = "http://localhost:8080"
-    botqq = 754734680
-    botkey = "lNITKEYbnj9X1iY"
-    adminqq = 1405538335
+    botqq = bot的QQ
+    botkey = "mirai api http 的key "
+    adminqq = 你的QQ
 
 
 ##############################################################################
