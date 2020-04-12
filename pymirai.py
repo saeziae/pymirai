@@ -8,14 +8,33 @@ import threading
 
 
 class BOT:
+    群事件="GroupMessage"
+    好友事件="FriendMessage"
     def __init__(self, url, qq, authKey):
         self.qq = qq
         self.sessionKey = None
         self.url = url
         self.authKey = authKey
         self.connecterrmsg = None
-        self.等着 = True
+        self.wait = True
 
+
+    def 登录(self,密码):
+        """
+        登不上的。\n
+        请 在 后 台 使 用 该 指 令
+        """
+        req = {
+            "authKey": self.authKey,
+            "name": "login",
+            "args": [self.qq, 密码]
+            }
+        
+        res = requests.post(url=self.url+"/command/send",
+                            json=req, timeout=10)
+        print(res.text)
+        return res
+        
     def 连接(self):
         self.断开()
         print("request:", "auth", {"authKey": self.authKey})
@@ -99,7 +118,8 @@ class BOT:
         print("request:", "uploadImage", {"type": type, "img": "..."})
         res = requests.post(self.url+"/uploadImage", data={
                             "sessionKey": self.sessionKey, 'type': type}, files={"img": img}, timeout=10)
-        ret = res.content
+        ret = res.text
+        ret = json.loads(ret)["imageId"]
         print("response:", "uploadImage", str(ret))
         return ret
 
@@ -210,7 +230,7 @@ class BOT:
         return ret
 
     def 拉消息(self, count=10):
-        res = requests.get(url=self.url+"/fetchMessage?sessionKey=" +
+        res = requests.get(url=self.url+"/fetchLatestMessage?sessionKey=" +
                            self.sessionKey+"&count="+str(count), timeout=10)
         ret = res.content
         return ret
@@ -229,18 +249,18 @@ class BOT:
                         func(self.bot, self.msg)
                     except:
                         traceback.print_exc()
-        self.等着 = True
-        while self.等着:
-            消息 = []
+        self.wait = True
+        while self.wait:
+            msgs = []
             try:
-                消息 = json.loads(self.拉消息())["data"]
-                # print(消息)
+                msgs = json.loads(self.拉消息())["data"]
+                # print(msgs)
             except:
                 pass
-            #if len(消息): print(消息)
-            # if type(消息["data"]) == dict:  #旧版
-            #    消息=[]
-            for msg in 消息:
+            #if len(msgs): print(msgs)
+            # if type(msgs["data"]) == dict:  #旧版
+            #    msgs=[]
+            for msg in msgs:
                 # print("message:",msg)
                 msgtype = msg['type']
                 if msgtype != "GroupMessage":
@@ -260,7 +280,7 @@ class BOT:
             time.sleep(timescale)
 
     def 不等了(self):
-        self.等着 = False
+        self.wait = False
 
     def 新增事件(self, msgtype, func):
         if(hasattr(self, msgtype)):
