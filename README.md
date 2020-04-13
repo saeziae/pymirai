@@ -29,24 +29,23 @@ class info:
 ##############################################################################
 
 
-def 格式化消息链(msg, quote = False): #（这个格式化消息链真香）
+def 格式化消息链(msg): #（真香）
     """返回成一般可读形式，并触发被at"""
-    msg_formatted=""
-    for i in msg['messageChain']:
+    msg_formatted = ""
+    for i in msg:
         if i["type"] == "Plain":
             msg_formatted += i["text"]
         elif i["type"] == "Face":
             msg_formatted += "[face: " + i["name"] + "]"
         elif i["type"] == "Image":
             msg_formatted += "[图片:"+i["imageId"]+"]"
-        elif quote == False:
-            if i["type"] == "Quote":
-                msg_formatted += ("[回复" + str(i["senderId"]) + "]")
-                #msg_formatted += ("[回复" + str(i["senderId"]) + ": " + 格式化消息链(i["origin"], True) + "]")
-            elif i["type"] == "At":
-                msg_formatted += i["display"]
-                if i["target"] == info.botqq:
-                    At事件(msg)
+        elif i["type"] == "At":
+            msg_formatted += i["display"]
+            if i["target"] == info.botqq:
+                At事件(msg)
+        elif i["type"] == "Quote":
+            msg_formatted += ("[回复" + str(i["senderId"]) + ": " + 格式化消息链(i["origin"]) + "]")
+
     return msg_formatted
 
 
@@ -67,7 +66,7 @@ def 群组消息(bot, msg):
     群号 = msg['sender']['group']['id']
     群员号 = msg['sender']['id']
 
-    内容 = 格式化消息链(msg)
+    内容 = 格式化消息链(msg['messageChain'])
 
     def 说(消息):
         机器人.发消息给群(群号, [{"type": "Plain", "text": 消息}, ])
