@@ -29,7 +29,7 @@ class info:
 ##############################################################################
 
 
-def 格式化消息链(msg): #（真香）
+def 格式化消息链(msg,Msg=None): #（真香）
     """返回成一般可读形式，并触发被at"""
     msg_formatted = ""
     for i in msg:
@@ -41,9 +41,10 @@ def 格式化消息链(msg): #（真香）
             msg_formatted += "[图片:"+i["imageId"]+"]"
         elif i["type"] == "At":
             msg_formatted += i["display"]
-            if i["target"] == info.botqq:
-                At事件(msg)
+            if i["target"] == info.botqq and Msg:
+                At事件(Msg)
         elif i["type"] == "Quote":
+            #msg_formatted += ("[回复" + str(i["senderId"]) + "]")
             msg_formatted += ("[回复" + str(i["senderId"]) + ": " + 格式化消息链(i["origin"]) + "]")
 
     return msg_formatted
@@ -66,7 +67,7 @@ def 群组消息(bot, msg):
     群号 = msg['sender']['group']['id']
     群员号 = msg['sender']['id']
 
-    内容 = 格式化消息链(msg['messageChain'])
+    内容 = 格式化消息链(msg['messageChain'],Msg)
 
     def 说(消息):
         机器人.发消息给群(群号, [{"type": "Plain", "text": 消息}, ])
